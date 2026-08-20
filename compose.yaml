@@ -1,0 +1,22 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      SEISMOS_IGN_FEED_URL: ${SEISMOS_IGN_FEED_URL:-https://www.ign.es/web/resources/sismologia/tproximos/terremotos.js}
+      SEISMOS_IGN_ALLOWED_HOSTS: ${SEISMOS_IGN_ALLOWED_HOSTS:-www.ign.es}
+      SEISMOS_IGN_TIMEOUT_SECONDS: ${SEISMOS_IGN_TIMEOUT_SECONDS:-10}
+      SEISMOS_IGN_MAX_RESPONSE_BYTES: ${SEISMOS_IGN_MAX_RESPONSE_BYTES:-5000000}
+      SEISMOS_CACHE_TTL_SECONDS: ${SEISMOS_CACHE_TTL_SECONDS:-120}
+      SEISMOS_UPSTREAM_RETRY_SECONDS: ${SEISMOS_UPSTREAM_RETRY_SECONDS:-30}
+      SEISMOS_CORS_ORIGINS: ${SEISMOS_CORS_ORIGINS:-http://localhost:8080}
+    restart: unless-stopped
+
+  web:
+    build: frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped
