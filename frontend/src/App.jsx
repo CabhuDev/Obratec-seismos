@@ -19,7 +19,7 @@ import { fetchEarthquakes } from './services/api';
 import { deriveDashboardStats } from './utils/earthquakes';
 
 const PERIODS = [
-  { value: '3d', label: '72 horas' },
+  { value: '3d', label: '3 días' },
   { value: '10d', label: '10 días' },
   { value: '30d', label: '30 días' },
 ];
@@ -34,11 +34,22 @@ function formatTime(value) {
 
 function relativeTime(value) {
   const minutes = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 60_000));
-  if (minutes < 1) return 'Ahora';
+  if (minutes < 1) return 'Hace menos de 1 min';
   if (minutes < 60) return `Hace ${minutes} min`;
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `Hace ${hours} h`;
   return `Hace ${Math.floor(hours / 24)} d`;
+}
+
+// La magnitud se escribe con coma decimal: es un numero en espanol y
+// convive con las profundidades y las fechas ya localizadas.
+const magnitudeFormatter = new Intl.NumberFormat('es-ES', {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+
+function formatMagnitude(magnitude) {
+  return magnitudeFormatter.format(magnitude);
 }
 
 function magnitudeClass(magnitude) {
@@ -71,10 +82,10 @@ function EarthquakeRow({ earthquake, selected, onSelect }) {
       className={`earthquake-row ${selected ? 'earthquake-row--selected' : ''}`}
       onClick={() => onSelect(earthquake.id)}
     >
-      <span className={magnitudeClass(earthquake.magnitude)}>M {earthquake.magnitude.toFixed(1)}</span>
+      <span className={magnitudeClass(earthquake.magnitude)}>M {formatMagnitude(earthquake.magnitude)}</span>
       <span className="earthquake-row__body">
-        <strong>{earthquake.location || 'Localización pendiente'}</strong>
-        <small><Clock3 size={12} /> {relativeTime(earthquake.occurred_at)} · {earthquake.depth_km} km</small>
+        <strong>{earthquake.location || 'Sin localización'}</strong>
+        <small><Clock3 size={12} /> {relativeTime(earthquake.occurred_at)} · profundidad {earthquake.depth_km} km</small>
       </span>
       <ArrowUpRight size={16} aria-hidden="true" />
     </button>
@@ -132,17 +143,17 @@ export default function App() {
       <div className="ambient ambient--two" />
 
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="Seísmos, inicio">
+        <a className="brand" href="#top" aria-label="Seísmos, ir al inicio">
           <span className="brand__mark"><Waves size={20} /></span>
           <span>SEÍSMOS<small>por OBRATEC</small></span>
         </a>
         <div className="topbar__actions">
-          <span className="official-badge"><Database size={14} /> Datos oficiales IGN</span>
+          <span className="official-badge"><Database size={14} /> Datos del IGN</span>
           <button
             className="icon-button"
             type="button"
             onClick={() => setTheme((value) => value === 'dark' ? 'light' : 'dark')}
-            aria-label="Cambiar tema"
+            aria-label="Cambiar entre tema claro y oscuro"
           >
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
@@ -156,32 +167,32 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <span className="eyebrow"><i /> Actividad sísmica actualizada</span>
-            <h1>España, <em>en movimiento.</em></h1>
-            <p>Una lectura clara y visual de la actividad sísmica reciente, a partir de la red oficial del Instituto Geográfico Nacional.</p>
+            <span className="eyebrow"><i /> Visor independiente · datos del IGN</span>
+            <h1>Terremotos <em>en España</em></h1>
+            <p>Los terremotos que el Instituto Geográfico Nacional ha localizado en España en los últimos días. Magnitud, profundidad y localización son provisionales: el IGN las revisa después de publicarlas. Esta web solo consulta y muestra esos datos públicos; no es un servicio oficial ni emite avisos.</p>
           </motion.div>
-          <aside className="hero__signal" aria-label="Estado de la red">
+          <aside className="hero__signal" aria-label="Fuente de los datos">
             <span className="signal-orbit"><Activity size={28} /></span>
-            <div><small>ESTADO DE LA RED</small><strong>Monitorización activa</strong></div>
+            <div><small>FUENTE DE LOS DATOS</small><strong>Instituto Geográfico Nacional</strong></div>
           </aside>
         </section>
 
-        <section className="stats-grid" aria-label="Resumen sísmico">
+        <section className="stats-grid" aria-label="Resumen de la actividad mostrada">
           {status === 'loading' ? (
             Array.from({ length: 4 }, (_, index) => <SkeletonLoader key={index} type="stat" />)
           ) : (
             <>
-              <StatCard icon={Activity} label="Eventos registrados" value={stats.total} suffix="" />
-              <StatCard icon={Gauge} label="Mayor magnitud" value={stats.strongest.toFixed(1)} suffix=" M" />
-              <StatCard icon={LocateFixed} label="Sismos superficiales" value={stats.shallow} suffix="" />
-              <StatCard icon={Clock3} label="Última actualización" value={data ? formatTime(data.meta.fetched_at).split(',')[1] : '—'} suffix="" />
+              <StatCard icon={Activity} label="Terremotos mostrados" value={stats.total} suffix="" />
+              <StatCard icon={Gauge} label="Mayor magnitud mostrada" value={formatMagnitude(stats.strongest)} suffix=" M" />
+              <StatCard icon={LocateFixed} label="Superficiales · ≤15 km" value={stats.shallow} suffix="" />
+              <StatCard icon={Clock3} label="Última consulta al IGN" value={data ? formatTime(data.meta.fetched_at).split(',')[1] : '—'} suffix="" />
             </>
           )}
         </section>
 
         <section className="workspace">
           <div className="workspace__toolbar">
-            <div className="segmented" aria-label="Periodo de consulta">
+            <div className="segmented" role="group" aria-label="Periodo de consulta">
               {PERIODS.map((item) => (
                 <button
                   type="button"
@@ -192,17 +203,17 @@ export default function App() {
               ))}
             </div>
             <div className="filter-group">
-              <label>Magnitud
+              <label>Magnitud mínima
                 <select value={minMagnitude} onChange={(event) => setMinMagnitude(Number(event.target.value))}>
-                  <option value="0">Todas</option>
-                  <option value="2">M 2+</option>
-                  <option value="3">M 3+</option>
-                  <option value="4">M 4+</option>
+                  <option value="0">Cualquiera</option>
+                  <option value="2">M 2 o más</option>
+                  <option value="3">M 3 o más</option>
+                  <option value="4">M 4 o más</option>
                 </select>
               </label>
-              <label>Profundidad
+              <label>Profundidad máxima
                 <select value={maxDepth} onChange={(event) => setMaxDepth(event.target.value)}>
-                  <option value="all">Todas</option>
+                  <option value="all">Cualquiera</option>
                   <option value="15">Hasta 15 km</option>
                   <option value="50">Hasta 50 km</option>
                 </select>
@@ -213,25 +224,28 @@ export default function App() {
           {status === 'error' && (
             <div className="state-panel state-panel--error">
               <span><AlertTriangle size={28} /></span>
-              <h2>No podemos conectar con la red sísmica</h2>
+              <h2>No se han podido cargar los datos</h2>
               <p>{error}</p>
               <button type="button" onClick={loadData}><RefreshCw size={16} /> Reintentar</button>
             </div>
           )}
 
           {status === 'loading' && (
-            <div className="dashboard-grid">
-              <SkeletonLoader type="map" />
-              <div className="feed-panel"><SkeletonLoader /><SkeletonLoader /><SkeletonLoader /></div>
-            </div>
+            <>
+              <p className="sr-only" role="status">Cargando datos del IGN</p>
+              <div className="dashboard-grid">
+                <SkeletonLoader type="map" />
+                <div className="feed-panel"><SkeletonLoader /><SkeletonLoader /><SkeletonLoader /></div>
+              </div>
+            </>
           )}
 
           {status === 'success' && earthquakes.length === 0 && (
             <div className="state-panel">
               <span><Waves size={28} /></span>
-              <h2>Sin eventos para estos filtros</h2>
-              <p>Amplía el periodo o reduce la magnitud mínima para consultar más actividad.</p>
-              <button type="button" onClick={() => { setMinMagnitude(0); setMaxDepth('all'); }}>Restablecer filtros</button>
+              <h2>No hay terremotos con estos filtros</h2>
+              <p>El IGN no ha publicado ningún terremoto que cumpla estos filtros en el periodo elegido. Prueba con un periodo más largo o baja la magnitud mínima.</p>
+              <button type="button" onClick={() => { setMinMagnitude(0); setMaxDepth('all'); }}>Quitar los filtros</button>
             </div>
           )}
 
@@ -252,13 +266,13 @@ export default function App() {
                   />
                 </Suspense>
                 <div className="map-panel__topline">
-                  <span><i /> En directo</span>
-                  <small>{earthquakes.length} eventos visibles</small>
+                  <span><i /> Epicentros</span>
+                  <small>{earthquakes.length} eventos en el mapa</small>
                 </div>
                 <div className="map-legend">
-                  <span><i className="dot dot--low" /> &lt; 2.5</span>
-                  <span><i className="dot dot--medium" /> 2.5–3.9</span>
-                  <span><i className="dot dot--high" /> 4+</span>
+                  <span><i className="dot dot--low" /> M &lt; 2,5</span>
+                  <span><i className="dot dot--medium" /> M 2,5–3,9</span>
+                  <span><i className="dot dot--high" /> M 4+</span>
                 </div>
                 {selected && (
                   <motion.article
@@ -268,11 +282,11 @@ export default function App() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <span className={magnitudeClass(selected.magnitude)}>M {selected.magnitude.toFixed(1)}</span>
+                    <span className={magnitudeClass(selected.magnitude)}>M {formatMagnitude(selected.magnitude)}</span>
                     <div>
-                      <small>EPICENTRO SELECCIONADO</small>
+                      <small>EPICENTRO SEGÚN EL IGN</small>
                       <strong>{selected.location}</strong>
-                      <p>{formatTime(selected.occurred_at)} · Profundidad {selected.depth_km} km</p>
+                      <p>{formatTime(selected.occurred_at)} · profundidad {selected.depth_km} km</p>
                     </div>
                   </motion.article>
                 )}
@@ -280,8 +294,8 @@ export default function App() {
 
               <aside className="feed-panel">
                 <div className="feed-panel__header">
-                  <div><span>ÚLTIMOS EVENTOS</span><h2>Actividad reciente</h2></div>
-                  <button type="button" onClick={loadData} aria-label="Actualizar datos"><RefreshCw size={17} /></button>
+                  <div><span>SEGÚN EL IGN</span><h2>Últimos terremotos</h2></div>
+                  <button type="button" onClick={loadData} aria-label="Volver a consultar los datos del IGN"><RefreshCw size={17} /></button>
                 </div>
                 <div className="feed-list">
                   {earthquakes.slice(0, 18).map((earthquake) => (
@@ -294,8 +308,8 @@ export default function App() {
                   ))}
                 </div>
                 <div className="feed-panel__footer">
-                  <span><i /> {data.meta.stale ? 'Copia de respaldo' : 'Sincronizado con IGN'}</span>
-                  <small>{formatTime(data.meta.fetched_at)}</small>
+                  <span><i className={data.meta.stale ? 'is-stale' : undefined} /> {data.meta.stale ? 'Copia guardada del IGN' : 'Datos del IGN'}</span>
+                  <small>Consultado {formatTime(data.meta.fetched_at)}</small>
                 </div>
               </aside>
             </div>
@@ -304,14 +318,14 @@ export default function App() {
 
         <section className="source-note">
           <Database size={22} />
-          <div><strong>Datos públicos, lectura independiente.</strong><p>La información procede del Instituto Geográfico Nacional y puede revisarse después de su publicación.</p></div>
-          <a href="https://www.ign.es/web/ultimos-terremotos" target="_blank" rel="noreferrer">Consultar fuente <ArrowUpRight size={15} /></a>
+          <div><strong>Fuente: Instituto Geográfico Nacional (IGN).</strong><p>El IGN revisa magnitud, profundidad y localización después de publicarlas, así que lo que ves aquí es provisional. Seísmos es un proyecto independiente: no es el IGN ni Protección Civil, y no sustituye a la información oficial.</p></div>
+          <a href="https://www.ign.es/web/ultimos-terremotos" target="_blank" rel="noreferrer" aria-label="Últimos terremotos en la web del IGN, se abre en una pestaña nueva">Últimos terremotos en el IGN <ArrowUpRight size={15} /></a>
         </section>
       </main>
 
       <footer>
-        <span>SEÍSMOS · Una iniciativa de OBRATEC</span>
-        <span>No es un servicio oficial del Gobierno de España.</span>
+        <span>SEÍSMOS · un proyecto de OBRATEC</span>
+        <span>Proyecto independiente. No es un servicio oficial del Gobierno de España ni está vinculado al IGN.</span>
       </footer>
     </div>
   );

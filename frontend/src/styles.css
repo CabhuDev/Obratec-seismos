@@ -128,6 +128,10 @@ button:focus-visible, a:focus-visible, select:focus-visible { outline: 3px solid
 .earthquake-row__body small { margin-top: 5px; display: flex; gap: 4px; align-items: center; color: var(--text-muted); font: 400 9px var(--font-mono); }
 .feed-panel__footer { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; color: var(--text-muted); border-top: 1px solid var(--line); font-size: 9px; }
 .feed-panel__footer span { display: flex; align-items: center; gap: 7px; font-weight: 700; }
+/* Dato servido de cache: el punto deja de latir. Un indicador "vivo" junto a
+   "Copia guardada del IGN" se contradice con el propio texto. */
+.feed-panel__footer i.is-stale { background: var(--text-muted); box-shadow: none; animation: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 .state-panel { min-height: 560px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 20px; background: var(--surface-solid); }
 .state-panel > span { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 18px; background: var(--brand-soft); color: var(--brand); }

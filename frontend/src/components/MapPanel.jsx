@@ -10,7 +10,7 @@ const MAP_STYLE = {
       type: 'raster',
       tiles: ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'],
       tileSize: 256,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO · Terremotos: IGN',
     },
   },
   layers: [{ id: 'carto-dark', type: 'raster', source: 'carto' }],
@@ -131,5 +131,12 @@ export default function MapPanel({ earthquakes, selectedId, onSelect, theme }) {
     }
   }, [selectedId, earthquakes]);
 
-  return <div ref={containerRef} className="map-canvas" aria-label="Mapa de terremotos de España" />;
+  return (
+    <div
+      ref={containerRef}
+      className="map-canvas"
+      role="region"
+      aria-label="Mapa de los epicentros localizados por el IGN en España"
+    />
+  );
 }

@@ -40,9 +40,9 @@ describe('App', () => {
   it('shows official earthquake data after loading', async () => {
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: /España, en movimiento/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Terremotos en España/i })).toBeInTheDocument();
     expect((await screen.findAllByText('SE CHURRIANA DE LA VEGA.GR')).length).toBeGreaterThan(0);
-    expect(screen.getAllByText('M 2.4').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('M 2,4').length).toBeGreaterThan(0);
     expect(await screen.findByTestId('map-panel')).toBeInTheDocument();
   });
 });
