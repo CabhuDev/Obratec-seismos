@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Autoalojadas las tipografías Manrope y Space Mono para evitar peticiones de terceros.
+- Endurecido el contenedor API: usuario sin privilegios, healthcheck y cabeceras de proxy.
 
 Todos los cambios relevantes del proyecto se documentan en este archivo.
 
