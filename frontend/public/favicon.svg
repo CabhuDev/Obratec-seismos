@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Seísmos">
+  <title>Seísmos</title>
+  <rect width="32" height="32" rx="7" fill="#12100e"/>
+  <path d="M3 16h4l2.5-7 4 15 4-19 3.5 15 2-4H29"
+        fill="none" stroke="#ff694d" stroke-width="2.4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

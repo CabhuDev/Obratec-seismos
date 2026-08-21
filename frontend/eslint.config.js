@@ -23,4 +23,12 @@ export default [
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
+  {
+    // Los ficheros de configuración se ejecutan en Node, no en el navegador:
+    // ahí `process` sí existe (vite.config.js lee process.env.VITE_BASE_PATH).
+    files: ['*.config.js'],
+    languageOptions: {
+      globals: { ...globals.node },
+    },
+  },
 ];

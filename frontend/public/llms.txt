@@ -1,0 +1,75 @@
+# Seísmos — terremotos en España, visor no oficial de datos del IGN
+
+> Visor independiente de los terremotos registrados en España y su entorno, construido
+> sobre el feed público de últimos terremotos del Instituto Geográfico Nacional (IGN).
+> URL: https://pablocabello.eu/seismos/
+
+## Aviso, antes que nada
+
+- **No es un servicio oficial del Gobierno de España ni está vinculado al IGN.** No emite
+  avisos y no sustituye a la información oficial. No es el IGN ni Protección Civil.
+- Los parámetros sísmicos (magnitud, profundidad, localización) que publica el IGN son
+  **provisionales** y pueden revisarse después de su publicación. Aquí se muestra siempre la
+  última versión publicada por el IGN, sin corregirla.
+- Para información oficial: https://www.ign.es/web/ultimos-terremotos
+- En caso de emergencia, los canales oficiales de emergencias (112 en España).
+- Si citas este sitio, cita también la fuente: Instituto Geográfico Nacional (IGN),
+  Ministerio de Transportes y Movilidad Sostenible.
+
+## Qué es
+
+Un mapa y un listado sincronizados de la actividad sísmica reciente.
+
+- Ventanas de consulta: últimos 3, 10 o 30 días.
+- Filtro por magnitud mínima: todas, M 2+, M 3+, M 4+.
+- Filtro por profundidad: todas, hasta 15 km, hasta 50 km.
+- Resumen: eventos registrados, mayor magnitud y número de sismos superficiales.
+
+## Definiciones que usa este visor
+
+- **Sismo superficial**: evento cuyo hipocentro se sitúa a 15 km de profundidad o menos.
+- **Dato provisional**: valor publicado por el IGN que puede cambiar al revisarse el registro.
+- **Copia de respaldo**: cuando el feed del IGN no responde, el visor sirve el último
+  conjunto de datos que consiguió descargar y lo señala en la interfaz.
+
+## Datos y procedencia
+
+- Fuente: Instituto Geográfico Nacional (IGN), Ministerio de Transportes y Movilidad Sostenible.
+- Feed de origen: https://www.ign.es/web/resources/sismologia/tproximos/terremotos.js
+- Página oficial: https://www.ign.es/web/ultimos-terremotos
+- Política de datos del IGN: https://www.ign.es/web/ign/portal/politica-datos
+- El navegador nunca consulta al IGN directamente: una API propia descarga el feed, extrae la
+  colección solicitada, la normaliza y la cachea 120 segundos.
+
+## API pública
+
+`GET https://pablocabello.eu/seismos/api/v1/earthquakes`
+
+| Parámetro | Valores | Por defecto |
+|---|---|---|
+| `period` | `3d`, `10d`, `30d` | `3d` |
+| `min_magnitude` | 0–10 | `0` |
+| `max_depth` | km, 0–1000 | sin límite |
+
+Respuesta JSON con `meta` (`count`, `period`, `stale`, `fetched_at` en UTC, `source`) e
+`items` (identificador, `occurred_at` ISO 8601 UTC, `local_time`, `location`, `magnitude`,
+`magnitude_type` —la escala, por ejemplo `mbLg`—, `depth_km` y coordenadas).
+Estado del servicio: `GET https://pablocabello.eu/seismos/api/health`.
+
+## Cómo está hecho
+
+- Backend: FastAPI (Python), normalización y caché del feed del IGN.
+- Frontend: React + Vite + MapLibre.
+- Despliegue: dos contenedores Docker detrás del nginx del host.
+- Código abierto con licencia MIT: https://github.com/CabhuDev/Obratec-seismos
+
+## Quién lo hace
+
+Pablo Cabello — Arquitecto Técnico y consultor de IA aplicada a construcción.
+Seísmos es un proyecto propio, publicado por OBRATEC e independiente del IGN: el diseño,
+el código y la lectura visual de los datos no son del organismo.
+
+- Web: https://pablocabello.eu
+- GitHub: https://github.com/CabhuDev
+- LinkedIn: https://www.linkedin.com/in/pablocabelloat/
+- OBRATEC: https://obratec.app

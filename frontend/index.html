@@ -4,14 +4,343 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#12100e" />
-    <meta name="description" content="Consulta la actividad sísmica reciente en España con datos oficiales del Instituto Geográfico Nacional." />
+    <meta name="color-scheme" content="dark light" />
+
+    <title>Terremotos en España · visor no oficial de datos del IGN</title>
+    <meta
+      name="description"
+      content="Visor independiente, no oficial, de los terremotos que el IGN ha localizado en España en los últimos días. Magnitud y profundidad son provisionales."
+    />
+    <meta name="author" content="Pablo Cabello" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <link rel="canonical" href="https://pablocabello.eu/seismos/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Seísmos · un proyecto de OBRATEC" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:url" content="https://pablocabello.eu/seismos/" />
+    <meta property="og:title" content="Terremotos en España · visor no oficial de datos del IGN" />
+    <meta
+      property="og:description"
+      content="Visor independiente, no oficial, de los terremotos que el IGN ha localizado en España en los últimos días. Magnitud y profundidad son provisionales."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Terremotos en España · visor no oficial de datos del IGN" />
+    <meta
+      name="twitter:description"
+      content="Visor independiente, no oficial, de los terremotos que el IGN ha localizado en España en los últimos días. Magnitud y profundidad son provisionales."
+    />
+    <!--
+      PENDIENTE (bloquea el compartido en redes): falta la imagen OG.
+      No se declara `og:image` mientras el fichero no exista: un og:image que
+      devuelve 404 es peor que no declarar ninguno.
+      Cuando `frontend/public/og.png` (1200x630, < 300 KB) esté colocada se
+      descomentan estas líneas y `twitter:card` pasa a `summary_large_image`.
+
+      <meta property="og:image" content="https://pablocabello.eu/seismos/og.png" />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content="Seísmos: mapa de la actividad sísmica reciente en España sobre datos del IGN. Proyecto independiente." />
+    -->
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="text/markdown" href="/llms.txt" title="Resumen en texto plano para asistentes" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-    <title>Seísmos · Actividad sísmica en España</title>
+    <link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebPage",
+            "@id": "https://pablocabello.eu/seismos/#webpage",
+            "url": "https://pablocabello.eu/seismos/",
+            "name": "Terremotos en España · visor no oficial de datos del IGN",
+            "description": "Los terremotos que el Instituto Geográfico Nacional ha localizado en España en los últimos días, sobre su feed público de últimos terremotos. Esta web solo consulta y muestra esos datos públicos.",
+            "disambiguatingDescription": "Proyecto independiente. No es un servicio oficial del Gobierno de España ni está vinculado al Instituto Geográfico Nacional, y no emite avisos. Magnitud, profundidad y localización son provisionales: el IGN las revisa después de publicarlas.",
+            "inLanguage": "es-ES",
+            "isPartOf": { "@id": "https://pablocabello.eu/#website" },
+            "about": { "@id": "https://pablocabello.eu/seismos/#dataset" },
+            "mainEntity": { "@id": "https://pablocabello.eu/seismos/#app" },
+            "breadcrumb": { "@id": "https://pablocabello.eu/seismos/#breadcrumb" },
+            "author": { "@id": "https://pablocabello.eu/#pablo-cabello" },
+            "publisher": { "@id": "https://pablocabello.eu/#pablo-cabello" }
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": "https://pablocabello.eu/seismos/#breadcrumb",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Pablo Cabello",
+                "item": "https://pablocabello.eu/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Seísmos",
+                "item": "https://pablocabello.eu/seismos/"
+              }
+            ]
+          },
+          {
+            "@type": "WebApplication",
+            "@id": "https://pablocabello.eu/seismos/#app",
+            "name": "Seísmos",
+            "alternateName": "OBRATEC Seísmos",
+            "url": "https://pablocabello.eu/seismos/",
+            "applicationCategory": "Visor cartográfico de datos públicos",
+            "operatingSystem": "Web (cualquier navegador moderno)",
+            "browserRequirements": "Requiere JavaScript para el mapa interactivo.",
+            "inLanguage": "es-ES",
+            "isAccessibleForFree": true,
+            "softwareVersion": "0.1.0",
+            "license": "https://opensource.org/licenses/MIT",
+            "description": "Mapa y listado sincronizados de los terremotos registrados en España y su entorno durante los últimos 3, 10 o 30 días, con filtros por magnitud y por profundidad.",
+            "disambiguatingDescription": "Herramienta independiente sobre datos públicos del IGN. No es el IGN ni Protección Civil, no emite avisos y no sustituye a la información oficial.",
+            "featureList": [
+              "Mapa interactivo de los epicentros registrados en España y su entorno",
+              "Ventanas de consulta de 3, 10 o 30 días",
+              "Filtro por magnitud mínima (M 2+, M 3+, M 4+)",
+              "Filtro por profundidad (hasta 15 km, hasta 50 km)",
+              "Resumen de eventos registrados, mayor magnitud y sismos superficiales",
+              "API pública en JSON con los datos del IGN normalizados"
+            ],
+            "creator": { "@id": "https://pablocabello.eu/#pablo-cabello" },
+            "publisher": { "@id": "https://pablocabello.eu/#pablo-cabello" },
+            "about": { "@id": "https://pablocabello.eu/seismos/#dataset" },
+            "isBasedOn": { "@id": "https://pablocabello.eu/seismos/#dataset" }
+          },
+          {
+            "@type": "Dataset",
+            "@id": "https://pablocabello.eu/seismos/#dataset",
+            "name": "Actividad sísmica reciente en España — datos del IGN normalizados",
+            "description": "Terremotos localizados por el Instituto Geográfico Nacional en España y su entorno durante los últimos 30 días, servidos como JSON con un contrato estable: identificador, fecha y hora en UTC, localización, magnitud y profundidad en kilómetros. Los parámetros son provisionales y el IGN puede revisarlos después de su publicación.",
+            "url": "https://pablocabello.eu/seismos/",
+            "inLanguage": "es-ES",
+            "isAccessibleForFree": true,
+            "temporalCoverage": "Ventana móvil de los últimos 30 días",
+            "creator": { "@id": "https://www.ign.es/#organizacion" },
+            "publisher": { "@id": "https://www.ign.es/#organizacion" },
+            "maintainer": { "@id": "https://pablocabello.eu/#pablo-cabello" },
+            "creditText": "Instituto Geográfico Nacional (IGN), Ministerio de Transportes y Movilidad Sostenible.",
+            "license": "https://www.ign.es/web/ign/portal/politica-datos",
+            "usageInfo": "https://www.ign.es/web/ign/portal/politica-datos",
+            "measurementTechnique": "Red sísmica del Instituto Geográfico Nacional",
+            "isBasedOn": [
+              "https://www.ign.es/web/ultimos-terremotos",
+              "https://www.ign.es/web/resources/sismologia/tproximos/terremotos.js"
+            ],
+            "spatialCoverage": {
+              "@type": "Place",
+              "name": "España y su entorno"
+            },
+            "variableMeasured": [
+              {
+                "@type": "PropertyValue",
+                "name": "Magnitud",
+                "description": "Magnitud publicada por el IGN para el evento, con la escala en la que se ha calculado (por ejemplo mbLg)."
+              },
+              {
+                "@type": "PropertyValue",
+                "name": "Profundidad",
+                "unitCode": "KMT",
+                "unitText": "km",
+                "description": "Profundidad del hipocentro en kilómetros."
+              },
+              {
+                "@type": "PropertyValue",
+                "name": "Fecha y hora",
+                "description": "Instante del evento en UTC, en formato ISO 8601."
+              },
+              {
+                "@type": "PropertyValue",
+                "name": "Localización",
+                "description": "Denominación de la zona del epicentro según el IGN, y sus coordenadas."
+              }
+            ],
+            "distribution": {
+              "@type": "DataDownload",
+              "name": "API pública de Seísmos (JSON)",
+              "contentUrl": "https://pablocabello.eu/seismos/api/v1/earthquakes",
+              "encodingFormat": "application/json"
+            }
+          },
+          {
+            "@type": "GovernmentOrganization",
+            "@id": "https://www.ign.es/#organizacion",
+            "name": "Instituto Geográfico Nacional",
+            "alternateName": "IGN",
+            "url": "https://www.ign.es",
+            "sameAs": ["https://www.wikidata.org/wiki/Q3137513"],
+            "parentOrganization": {
+              "@type": "GovernmentOrganization",
+              "name": "Ministerio de Transportes y Movilidad Sostenible"
+            }
+          },
+          {
+            "@type": "SoftwareSourceCode",
+            "@id": "https://pablocabello.eu/seismos/#codigo",
+            "name": "Obratec-seismos",
+            "description": "Código fuente del visor: API en FastAPI que descarga, normaliza y cachea el feed del IGN, y cliente React con MapLibre.",
+            "codeRepository": "https://github.com/CabhuDev/Obratec-seismos",
+            "programmingLanguage": ["Python", "JavaScript"],
+            "runtimePlatform": ["FastAPI", "React", "Docker"],
+            "license": "https://opensource.org/licenses/MIT",
+            "author": { "@id": "https://pablocabello.eu/#pablo-cabello" },
+            "maintainer": { "@id": "https://pablocabello.eu/#pablo-cabello" },
+            "targetProduct": { "@id": "https://pablocabello.eu/seismos/#app" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://pablocabello.eu/#pablo-cabello",
+            "name": "Pablo Cabello",
+            "url": "https://pablocabello.eu",
+            "jobTitle": "Consultor de IA aplicada a construcción",
+            "sameAs": [
+              "https://www.linkedin.com/in/pablocabelloat/",
+              "https://github.com/CabhuDev",
+              "https://obratec.app"
+            ]
+          }
+        ]
+      }
+    </script>
+
+    <style>
+      /* Estilos mínimos de la portada estática. Sólo se ven antes de que monte
+         React (o siempre, si el visitante no tiene JavaScript). No dependen de
+         styles.css para no acoplarse a las clases de src/. */
+      #portada-estatica {
+        max-width: 46rem;
+        margin: 0 auto;
+        padding: 3rem 1.5rem 4rem;
+        font-family: 'Manrope', system-ui, sans-serif;
+        line-height: 1.65;
+      }
+      #portada-estatica .kicker {
+        margin: 0 0 1rem;
+        font-family: 'Space Mono', ui-monospace, monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        opacity: 0.7;
+      }
+      #portada-estatica h1 {
+        margin: 0 0 1rem;
+        font-size: clamp(2rem, 6vw, 3rem);
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+      }
+      #portada-estatica h2 {
+        margin: 2rem 0 0.5rem;
+        font-size: 1.1rem;
+      }
+      #portada-estatica p,
+      #portada-estatica ul {
+        margin: 0 0 1rem;
+      }
+      #portada-estatica .aviso {
+        border-left: 3px solid #e6492d;
+        padding-left: 1rem;
+      }
+      #portada-estatica code {
+        font-family: 'Space Mono', ui-monospace, monospace;
+        font-size: 0.85em;
+        overflow-wrap: anywhere;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <!--
+      El contenido de #root es la portada estática: es lo ÚNICO que ven los
+      rastreadores que no ejecutan JavaScript (GPTBot, OAI-SearchBot, ClaudeBot,
+      PerplexityBot, CCBot) y las personas con JavaScript desactivado.
+
+      React lo sustituye por la aplicación al montar: en React 18,
+      ReactDOM.createRoot(contenedor).render() vacía el contenedor antes de
+      pintar. Comprobado; no hace falta tocar src/main.jsx.
+
+      NO BORRAR. Si se borra, la página vuelve a ser un div vacío para los LLM.
+
+      [BORRADOR DE COPY — pendiente de pulir por Mauricio.]
+      Los avisos son innegociables y cualquier reescritura debe conservarlos:
+      (1) esto no es un servicio oficial del Gobierno de España ni del IGN;
+      (2) el dato del IGN es provisional y revisable;
+      (3) en una emergencia, los canales oficiales.
+    -->
+    <div id="root">
+      <div id="portada-estatica">
+        <p class="kicker">Visor independiente · datos del IGN</p>
+        <h1>Terremotos en España</h1>
+
+        <p>
+          Los terremotos que el Instituto Geográfico Nacional ha localizado en España en los
+          últimos días. Magnitud, profundidad y localización son provisionales: el IGN las
+          revisa después de publicarlas. Esta web solo consulta y muestra esos datos públicos;
+          no es un servicio oficial ni emite avisos.
+        </p>
+
+        <p class="aviso">
+          <strong>Proyecto independiente. No es un servicio oficial del Gobierno de España ni
+          está vinculado al IGN.</strong> Seísmos no es el IGN ni Protección Civil y no sustituye
+          a la información oficial. Para consultarla, ve a
+          <a href="https://www.ign.es/web/ultimos-terremotos">los últimos terremotos del IGN</a>.
+          En una emergencia, llama al 112.
+        </p>
+
+        <h2>Qué muestra</h2>
+        <ul>
+          <li>Mapa y listado sincronizados de los eventos de los últimos 3, 10 o 30 días.</li>
+          <li>Filtro por magnitud mínima: todas, M 2+, M 3+ o M 4+.</li>
+          <li>Filtro por profundidad: todas, hasta 15 km o hasta 50 km.</li>
+          <li>Resumen de eventos registrados, mayor magnitud y número de sismos superficiales.</li>
+        </ul>
+
+        <h2>De dónde salen los datos</h2>
+        <p>
+          Del feed público de últimos terremotos del Instituto Geográfico Nacional, adscrito al
+          Ministerio de Transportes y Movilidad Sostenible. El navegador no consulta al IGN: una
+          API propia descarga el feed, extrae la colección solicitada, la normaliza y la cachea
+          120 segundos. Esa API es pública y devuelve JSON en
+          <code>https://pablocabello.eu/seismos/api/v1/earthquakes</code>.
+        </p>
+
+        <h2>Dos definiciones que usa este visor</h2>
+        <p>
+          <strong>Sismo superficial</strong>: en este visor, el evento cuyo hipocentro se sitúa
+          a 15 km de profundidad o menos.
+        </p>
+        <p>
+          <strong>Dato provisional</strong>: la magnitud, la profundidad y la localización que
+          publica el IGN pueden cambiar cuando se revisa el registro. Aquí se muestra siempre
+          la última versión publicada por el IGN, sin corregirla.
+        </p>
+
+        <h2>Quién lo hace</h2>
+        <p>
+          Lo ha construido y lo mantiene <a href="https://pablocabello.eu">Pablo Cabello</a>,
+          Arquitecto Técnico y desarrollador. Seísmos es un proyecto de OBRATEC. El código es
+          abierto, con licencia MIT, y está en
+          <a href="https://github.com/CabhuDev/Obratec-seismos">github.com/CabhuDev/Obratec-seismos</a>.
+          El diseño, el código y la lectura visual de los datos son independientes del IGN.
+        </p>
+
+        <noscript>
+          <p class="aviso">
+            <strong>El mapa interactivo necesita JavaScript.</strong> Sin JavaScript puedes
+            consultar los datos en bruto en la API pública,
+            <a href="https://pablocabello.eu/seismos/api/v1/earthquakes">/seismos/api/v1/earthquakes</a>,
+            o en la web del IGN.
+          </p>
+        </noscript>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
