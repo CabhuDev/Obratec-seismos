@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Autoalojadas las tipografías Manrope y Space Mono para evitar peticiones de terceros.
+
 Todos los cambios relevantes del proyecto se documentan en este archivo.
 
 ## [0.1.0] - 2026-08-20
