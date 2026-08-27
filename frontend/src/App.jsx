@@ -32,15 +32,6 @@ function formatTime(value) {
   }).format(new Date(value));
 }
 
-function relativeTime(value) {
-  const minutes = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 60_000));
-  if (minutes < 1) return 'Hace menos de 1 min';
-  if (minutes < 60) return `Hace ${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `Hace ${hours} h`;
-  return `Hace ${Math.floor(hours / 24)} d`;
-}
-
 // La magnitud se escribe con coma decimal: es un numero en espanol y
 // convive con las profundidades y las fechas ya localizadas.
 const magnitudeFormatter = new Intl.NumberFormat('es-ES', {
@@ -85,7 +76,7 @@ function EarthquakeRow({ earthquake, selected, onSelect }) {
       <span className={magnitudeClass(earthquake.magnitude)}>M {formatMagnitude(earthquake.magnitude)}</span>
       <span className="earthquake-row__body">
         <strong>{earthquake.location || 'Sin localización'}</strong>
-        <small><Clock3 size={12} /> {relativeTime(earthquake.occurred_at)} · profundidad {earthquake.depth_km} km</small>
+        <small><Clock3 size={12} /> {formatTime(earthquake.occurred_at)} · profundidad {earthquake.depth_km} km</small>
       </span>
       <ArrowUpRight size={16} aria-hidden="true" />
     </button>
