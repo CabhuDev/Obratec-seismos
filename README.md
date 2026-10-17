@@ -110,3 +110,7 @@ Los parámetros sísmicos pueden revisarse después de su publicación. El dise�
 ## Licencia
 
 Código publicado bajo [MIT](LICENSE).
+
+## Autor
+
+**Pablo Cabello** · Arquitecto Técnico · IA aplicada a construcción · [pablocabello.eu](https://pablocabello.eu) · Versión pública: [pablocabello.eu/seismos/](https://pablocabello.eu/seismos/)
