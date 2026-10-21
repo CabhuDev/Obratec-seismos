@@ -1,20 +1,15 @@
 import { useEffect, useRef } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
+
+// MapLibre 6 busca su worker junto al chunk y Vite no lo copia: sin esto, las teselas
+// vectoriales no se procesan nunca y el mapa se queda en negro.
+maplibregl.setWorkerUrl(workerUrl);
 
 const SOURCE_ID = 'earthquakes';
-const MAP_STYLE = {
-  version: 8,
-  sources: {
-    carto: {
-      type: 'raster',
-      tiles: ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'],
-      tileSize: 256,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO · Terremotos: IGN',
-    },
-  },
-  layers: [{ id: 'carto-dark', type: 'raster', source: 'carto' }],
-};
+// OpenFreeMap: teselas vectoriales gratuitas y sin clave (CARTO empezó a exigirla en 10/2026).
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/dark';
 
 function mapColors() {
   const styles = getComputedStyle(document.documentElement);
@@ -60,7 +55,10 @@ export default function MapPanel({ earthquakes, selectedId, onSelect, theme }) {
       attributionControl: false,
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-    map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-left');
+    map.addControl(
+      new maplibregl.AttributionControl({ compact: true, customAttribution: 'Terremotos: IGN' }),
+      'bottom-left',
+    );
 
     map.on('load', () => {
       const colors = mapColors();
